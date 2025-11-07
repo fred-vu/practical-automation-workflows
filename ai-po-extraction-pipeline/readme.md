@@ -4,7 +4,7 @@ Automate the extraction of purchase order data from PDF documents using OCR and 
 
 ## Workflow Diagram
 
-![Workflow Architecture](./workflow-diagram.png)
+![Workflow Architecture](./workflow-diagram.PNG)
 
 **Table of Contents**
 - [Features](#features)
