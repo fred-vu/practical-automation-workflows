@@ -1,0 +1,535 @@
+{
+  "name": "## Get Cryptocurrency Chart & Technical Analysis Send to telegram Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fdf7e016-7082-4146-9038-454139023990",
+              "name": "response",
+              "value": "={{ $('Technical Analysis1').item.json.choices[0].message.content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        416,
+        208
+      ],
+      "id": "26f9a7e6-05bb-4cea-a18c-b10d5143edd7",
+      "name": "Format Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5664825c-e503-4717-b45e-2a508dddc60d",
+              "name": "chart-img ApI key",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "1cb280fb-c5b0-45c2-94e6-2a7f8558a0ea",
+              "name": "telegram chatID",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "cf5f7210-5b54-4f4a-abf7-87873be82df4",
+              "name": "ticker",
+              "value": "=BTCUSDT",
+              "type": "string"
+            },
+            {
+              "id": "c3421f5c-ea33-4ab5-9acb-23d77e03b9f1",
+              "name": "timeframe",
+              "value": "=1D",
+              "type": "string"
+            },
+            {
+              "id": "93a4d210-5b56-4f4a-baaa-87873be82da3",
+              "name": "indicator1",
+              "value": "=MACD",
+              "type": "string"
+            },
+            {
+              "id": "65a4d210-5b56-4a4a-bbaa-87873be82dq1",
+              "name": "indicator2",
+              "value": "=Relative Strength Index",
+              "type": "string"
+            },
+            {
+              "id": "45a4d210-5c56-4a4a-bbbb-87873be82dd3",
+              "name": "theme",
+              "value": "=dark",
+              "type": "string"
+            },
+            {
+              "id": "97a4d210-5c56-4a4a-cccc-87873be82aa3",
+              "name": "range",
+              "value": "=3M",
+              "type": "string"
+            },
+            {
+              "id": "a7b4d210-5c56-4a4a-dddd-87873be82bb5",
+              "name": "exchange",
+              "value": "=BINANCE",
+              "type": "string"
+            },
+            {
+              "id": "b8c5d210-5c56-4a4a-eeee-87873be82cc6",
+              "name": "baseCoin",
+              "value": "=bitcoin",
+              "type": "string"
+            },
+            {
+              "id": "d9e6d210-5c56-4a4a-ffff-87873be82dd7",
+              "name": "cryptoId",
+              "value": "=bitcoin",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -592,
+        48
+      ],
+      "id": "9bc273f4-e130-4432-9a20-aeedf4305d97",
+      "name": "Parse Parameters"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Parse Parameters').item.json['telegram chatID'] }}",
+        "binaryData": true,
+        "additionalFields": {
+          "caption": "=📈 Chart: {{ $('Parse Parameters').item.json.ticker }} on {{ $('Parse Parameters').item.json.exchange }}"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -16,
+        400
+      ],
+      "id": "376ad73e-737b-42da-a79f-1b8716621ffd",
+      "name": "Send Chart Image",
+      "webhookId": "b431a94b-a677-4507-96d6-beb5b6334bb8",
+      "credentials": {
+        "telegramApi": {
+          "id": "geEcbUCSx4iHT20V",
+          "name": "FV_Order_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.ticker !== undefined && $json.ticker.length > 0 }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        48
+      ],
+      "id": "13690df1-2b2a-4776-92db-55e54951963d",
+      "name": "Valid Ticker?"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Parameters').item.json['telegram chatID'] }}",
+        "text": "=⚠️ **Error**: Invalid cryptocurrency symbol provided.\n\nPlease provide a valid cryptocurrency pair (e.g., BTCUSD, ETHUSDT).",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        288
+      ],
+      "id": "9ba6da99-a4dd-461e-9186-327339e0c64c",
+      "name": "Send Error",
+      "webhookId": "b431a94b-a677-4507-96d6-beb5b6334bb8",
+      "credentials": {
+        "telegramApi": {
+          "id": "geEcbUCSx4iHT20V",
+          "name": "FV_Order_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.coingecko.com/api/v3/coins/{{ $json.id }}/market_chart?vs_currency=usd&days=7",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -208,
+        -96
+      ],
+      "id": "49fded8a-6f61-46e0-92bc-3a65fbf0e602",
+      "name": "Get Price History"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.coingecko.com/api/v3/coins/{{ $json.baseCoin }}?localization=false&tickers=false&community_data=false&developer_data=false",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -336,
+        -96
+      ],
+      "id": "f64a5a4c-9543-4070-b913-a5f9121b1541",
+      "name": "Get Crypto Info"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fdf7e016-7082-4146-9038-aaaafe29021a",
+              "name": "market_context",
+              "value": "={{ {\n  \"ticker\": $json.ticker,\n  \"exchange\": $json.exchange,\n  \"timeframe\": $json.timeframe,\n  \"coin_name\": $('Get Crypto Info').item.json.name || 'Unknown',\n  \"market_cap\": $('Get Crypto Info').item.json.market_data ? $('Get Crypto Info').item.json.market_data.market_cap.usd : 'Unknown',\n  \"price_change_24h\": $('Get Crypto Info').item.json.market_data ? $('Get Crypto Info').item.json.market_data.price_change_percentage_24h : 'Unknown',\n  \"price_change_7d\": $('Get Crypto Info').item.json.market_data ? $('Get Crypto Info').item.json.market_data.price_change_percentage_7d : 'Unknown',\n  \"price_change_30d\": $('Get Crypto Info').item.json.market_data ? $('Get Crypto Info').item.json.market_data.price_change_percentage_30d : 'Unknown',\n  \"volume_24h\": $('Get Crypto Info').item.json.market_data ? $('Get Crypto Info').item.json.market_data.total_volume.usd : 'Unknown',\n  \"current_price\": $('Get Crypto Info').item.json.market_data ? $('Get Crypto Info').item.json.market_data.current_price.usd : 'Unknown'\n} }}",
+              "type": "json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -80,
+        -96
+      ],
+      "id": "14a2cdce-e844-4cde-a90f-b71ef648b9a5",
+      "name": "Get Market Context"
+    },
+    {
+      "parameters": {
+        "content": "## Get Cryptocurrency Chart & Technical Analysis Workflow",
+        "height": 928,
+        "width": 1708
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -864,
+        -304
+      ],
+      "typeVersion": 1,
+      "id": "abffccf8-e924-425d-afe1-483b4fc7c580",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "GPT-4O"
+        },
+        "text": "=# Role\n\nYou are an expert cryptocurrency analyst specializing in technical analysis of crypto charts. Your role is to analyze cryptocurrency charts provided to you and offer comprehensive insights into the technical aspects, including candlestick patterns, indicators, volume trends, and overall market sentiment. You must provide a detailed breakdown of the chart, highlighting key areas of interest and actionable insights.\n\nWhen analyzing a cryptocurrency chart, always include the following:\n\n1. **Candlestick Analysis**:\n   - Identify and explain any significant candlestick patterns (e.g., bullish engulfing, doji, hammer).\n   - Comment on the overall trend (bullish, bearish, or sideways).\n   - Highlight any breakout or pullback zones.\n\n2. **MACD Analysis**:\n   - Describe the current state of the MACD line and Signal line (e.g., bullish crossover, bearish crossover).\n   - Discuss the MACD histogram and its implications for momentum.\n   - Identify any divergences between the MACD and the price action.\n\n3. **Volume Analysis**:\n   - Highlight any significant changes in trading volume.\n   - Explain how volume supports or contradicts price movements.\n   - Indicate any unusual spikes in volume that may suggest whale activity or market manipulation.\n\n4. **Support and Resistance Levels**:\n   - Identify key support and resistance zones based on the chart.\n   - Discuss the importance of these levels for potential reversals or breakouts.\n\n5. **RSI Analysis (if shown)**:\n   - Describe the current RSI reading and what it suggests about overbought/oversold conditions.\n   - Identify any RSI divergences (bullish or bearish).\n\n6. **Market Context**:\n   - Consider the broader crypto market trend (Bitcoin dominance, overall market cap trends).\n   - Note any relevant recent news that could impact the coin's performance.\n   - Mention any specific on-chain metrics if available (e.g., exchange inflows/outflows, active addresses).\n\n7. **Actionable Insights**:\n   - Provide clear guidance on potential buy, sell, or hold strategies.\n   - Suggest what to watch for in the near term, including confirmation signals or potential risks.\n   - Give specific price targets or stop-loss levels when appropriate.\n\n8. **Risk Assessment**:\n   - Identify potential warning signs that could invalidate your analysis.\n   - Provide a confidence level in your assessment based on the clarity of the patterns.\n   - Mention any upcoming events (hardforks, regulatory news) that could override technical signals.\n\nBe clear, concise, and data-driven in your analysis. Your goal is to provide actionable information that crypto traders can use to make informed decisions. Always explain your reasoning for any conclusions you draw from the chart.\n\nCryptocurrency being analyzed: {{ $('Parse Parameters').item.json.ticker }}: (Timeframe:{{ $('Parse Parameters').item.json.timeframe }})\n\nCurrent price: ${{ $('Get Market Context').item.json.market_context.current_price }}\nMarket cap: ${{ $('Get Market Context').item.json.market_context.market_cap }}\n24h change: {{ $('Get Market Context').item.json.market_context.price_change_24h }}%\n7d change: {{ $('Get Market Context').item.json.market_context.price_change_7d }}%\n",
+        "inputType": "base64",
+        "simplify": false,
+        "options": {
+          "detail": "auto",
+          "maxTokens": 800
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        208,
+        208
+      ],
+      "id": "ed2b261f-8c86-4a41-9742-f9e6ff8c3fb2",
+      "name": "Technical Analysis1",
+      "alwaysOutputData": false,
+      "credentials": {
+        "openAiApi": {
+          "id": "Fa1Ums9niCoA5YJN",
+          "name": "OpenAi-D"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -96,
+        208
+      ],
+      "id": "52f118d6-e113-4aeb-a962-ecdc8f36d2e4",
+      "name": "Download Chart1",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.chart-img.com/v2/tradingview/advanced-chart/storage",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $('Parse Parameters').item.json['chart-img ApI key'] }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"theme\": \"{{ $('Parse Parameters').item.json.theme }}\",\n  \"interval\": \"{{ $('Parse Parameters').item.json.timeframe }}\",\n  \"symbol\": \"{{ $('Parse Parameters').item.json.exchange }}:{{ $('Parse Parameters').item.json.ticker }}\",\n  \"range\": \"{{ $('Parse Parameters').item.json.range }}\",\n  \"override\": {\n    \"showStudyLastValue\": true,\n    \"showLegend\": true\n  },\n  \"studies\": [\n    {\n      \"name\": \"Volume\",\n      \"forceOverlay\": true\n    },\n    {\n      \"name\": \"{{ $('Parse Parameters').item.json.indicator1 }}\",\n      \"override\": {\n        \"Signal.linewidth\": 2,\n        \"Signal.color\": \"rgb(255,65,129)\"\n      }\n    },\n    {\n      \"name\": \"{{ $('Parse Parameters').item.json.indicator2 }}\"\n    }\n  ]\n}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -224,
+        208
+      ],
+      "id": "6c82e80f-f41a-4397-bc83-e6fca0899c7b",
+      "name": "Get Chart URL1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -816,
+        48
+      ],
+      "id": "92f60995-67bc-481e-8f88-f3d9a360f5ad",
+      "name": "When clicking 'Test workflow'"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Parameters').item.json['telegram chatID'] }}",
+        "text": "=**Cryptocurrency Analysis:: **\n\n{{ $('Format Response').item.json.response }}\n\n\n📊 **Market Data**\nCurrent Price: ${{ Number($('Get Market Context').item.json.market_context.current_price).toLocaleString() }}\nMarket Cap: ${{ Number($('Get Market Context').item.json.market_context.market_cap).toLocaleString() }}\n24h Change: {{ $('Get Market Context').item.json.market_context.price_change_24h }}%\n7d Change: {{ $('Get Market Context').item.json.market_context.price_change_7d }}%\n30d Change: {{ $('Get Market Context').item.json.market_context.price_change_30d }}%\n24h Volume: ${{ Number($('Get Market Context').item.json.market_context.volume_24h).toLocaleString() }}\n\nℹ️ Analysis by CryptoMarket AI Assistant\n",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "Markdown"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        208
+      ],
+      "id": "326553ab-1991-482d-bf79-45b07bdf1f4d",
+      "name": "Send Analysis2",
+      "webhookId": "b431a94b-a677-4507-96d6-beb5b6334bb8",
+      "credentials": {
+        "telegramApi": {
+          "id": "geEcbUCSx4iHT20V",
+          "name": "FV_Order_bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## NEED TO SET UP chart-img ApI key and telegram chatID first",
+        "height": 320,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        -240
+      ],
+      "typeVersion": 1,
+      "id": "da1347a0-5fd8-4a10-8d11-60e776c39b18",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Send Analysis2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Parameters": {
+      "main": [
+        [
+          {
+            "node": "Valid Ticker?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid Ticker?": {
+      "main": [
+        [
+          {
+            "node": "Get Crypto Info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Price History": {
+      "main": [
+        [
+          {
+            "node": "Get Market Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Crypto Info": {
+      "main": [
+        [
+          {
+            "node": "Get Price History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Market Context": {
+      "main": [
+        [
+          {
+            "node": "Get Chart URL1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Technical Analysis1": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Chart1": {
+      "main": [
+        [
+          {
+            "node": "Send Chart Image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Technical Analysis1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Chart URL1": {
+      "main": [
+        [
+          {
+            "node": "Download Chart1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Parse Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f6409594-f6a7-4d26-a417-9a0aba689446",
+  "meta": {
+    "instanceId": "e2b977e38c7c4d36887ad20ea718bdd8ac1bacd4a9016d794bfd8e80c7c3aa2a"
+  },
+  "id": "I3Q9E7C3JHlL5c04",
+  "tags": []
+}
