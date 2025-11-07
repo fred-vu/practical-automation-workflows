@@ -2,6 +2,10 @@
 
 Automate the extraction of purchase order data from PDF documents using OCR and AI, then seamlessly sync structured data into your Supabase database. This n8n workflow eliminates manual data entry and ensures consistency across vendor orders.
 
+## Workflow Diagram
+
+![Workflow Architecture](./workflow-diagram.png)
+
 **Table of Contents**
 - [Features](#features)
 - [Quick Start](#quick-start)
